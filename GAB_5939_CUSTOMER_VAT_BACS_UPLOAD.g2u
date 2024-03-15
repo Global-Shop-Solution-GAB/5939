@@ -1,0 +1,548 @@
+﻿Program.Sub.ScreenSU.Start
+Gui.F_Upload..Create(BaseForm)
+Gui.F_Upload..Caption("APAC Data Mapper")
+Gui.F_Upload..Size(4785,2235)
+Gui.F_Upload..MinX(0)
+Gui.F_Upload..MinY(0)
+Gui.F_Upload..Position(0,0)
+Gui.F_Upload..BackColor(-2147483633)
+Gui.F_Upload..MousePointer(0)
+Gui.F_Upload..Event(UnLoad,Unload)
+Gui.F_Upload..AlwaysOnTop(False)
+Gui.F_Upload..FontName("Tahoma")
+Gui.F_Upload..FontSize(8.25)
+Gui.F_Upload..ControlBox(True)
+Gui.F_Upload..MaxButton(True)
+Gui.F_Upload..MinButton(True)
+Gui.F_Upload..Moveable(True)
+Gui.F_Upload..Sizeable(True)
+Gui.F_Upload..ShowInTaskBar(True)
+Gui.F_Upload..TitleBar(True)
+Gui.F_Upload.frame1.Create(Frame)
+Gui.F_Upload.frame1.Size(4170,1125)
+Gui.F_Upload.frame1.Position(75,450)
+Gui.F_Upload.frame1.Enabled(True)
+Gui.F_Upload.frame1.Visible(True)
+Gui.F_Upload.frame1.Zorder(0)
+Gui.F_Upload.frame1.Caption("")
+Gui.F_Upload.frame1.FontName("Tahoma")
+Gui.F_Upload.frame1.FontSize(8.25)
+Gui.F_Upload.optVAT.Create(Option)
+Gui.F_Upload.optVAT.Size(2505,255)
+Gui.F_Upload.optVAT.Position(180,255)
+Gui.F_Upload.optVAT.Parent("frame1")
+Gui.F_Upload.optVAT.Caption("Customer VAT")
+Gui.F_Upload.optVAT.FontSize(9)
+Gui.F_Upload.optVAT.Event(Click,OptVAT)
+Gui.F_Upload.optVAT.Enabled(True)
+Gui.F_Upload.optVAT.Visible(True)
+Gui.F_Upload.optVAT.Zorder(0)
+Gui.F_Upload.optVAT.FontName("Tahoma")
+Gui.F_Upload.optBACS.Create(Option)
+Gui.F_Upload.optBACS.Size(2055,255)
+Gui.F_Upload.optBACS.Position(180,690)
+Gui.F_Upload.optBACS.Parent("frame1")
+Gui.F_Upload.optBACS.Caption("Vendor BACS")
+Gui.F_Upload.optBACS.FontSize(9)
+Gui.F_Upload.optBACS.Event(Click,OptBACS)
+Gui.F_Upload.optBACS.Enabled(True)
+Gui.F_Upload.optBACS.Visible(True)
+Gui.F_Upload.optBACS.Zorder(0)
+Gui.F_Upload.optBACS.FontName("Tahoma")
+Gui.F_Upload.chk1.Create(CheckBox)
+Gui.F_Upload.chk1.Size(4125,300)
+Gui.F_Upload.chk1.Position(90,75)
+Gui.F_Upload.chk1.Caption("If record already exists, update current record")
+Gui.F_Upload.chk1.FontSize(9)
+Gui.F_Upload.chk1.Enabled(True)
+Gui.F_Upload.chk1.Visible(True)
+Gui.F_Upload.chk1.Zorder(0)
+Gui.F_Upload.chk1.FontName("Tahoma")
+Gui.F_Upload.chk1.Value(1)
+Gui.F_Fail..Create(BaseForm)
+Gui.F_Fail..Caption("Customer VAT or Vendor BACS Not Uploaded")
+Gui.F_Fail..Size(15360,9585)
+Gui.F_Fail..MinX(0)
+Gui.F_Fail..MinY(0)
+Gui.F_Fail..Position(0,0)
+Gui.F_Fail..BackColor(-2147483633)
+Gui.F_Fail..MousePointer(0)
+Gui.F_Fail..Event(UnLoad,Unload)
+Gui.F_Fail..AlwaysOnTop(False)
+Gui.F_Fail..FontName("Tahoma")
+Gui.F_Fail..FontSize(8.25)
+Gui.F_Fail..ControlBox(True)
+Gui.F_Fail..MaxButton(True)
+Gui.F_Fail..MinButton(True)
+Gui.F_Fail..Moveable(True)
+Gui.F_Fail..Sizeable(True)
+Gui.F_Fail..ShowInTaskBar(True)
+Gui.F_Fail..TitleBar(True)
+Gui.F_Fail.GsGridControl1.Create(GsGridControl)
+Gui.F_Fail.GsGridControl1.Size(14970,9180)
+Gui.F_Fail.GsGridControl1.Position(75,180)
+Gui.F_Fail.GsGridControl1.Enabled(True)
+Gui.F_Fail.GsGridControl1.Visible(True)
+Gui.F_Fail.GsGridControl1.Zorder(0)
+Program.Sub.ScreenSU.End
+
+Program.Sub.Preflight.Start
+V.Global.sGSSVersion.Declare
+Program.Sub.Preflight.End
+
+Program.Sub.Main.Start
+V.Local.sIcon.Declare
+
+F.Intrinsic.String.Build("{0}\ART\gss2.ico",V.Caller.GlobalDir,V.Local.sIcon)
+Gui.F_Upload..Icon(V.Local.sIcon)
+
+F.ODBC.Connection!conx.OpenConnection(V.Ambient.PDSN,V.Ambient.PUser,V.Ambient.PPass)
+V.Global.sGSSVersion.Set(V.Caller.GSSVersion)
+F.Intrinsic.String.Left(V.Global.sGSSVersion,4,V.Global.sGSSVersion)
+
+Gui.F_Upload..Show
+Program.Sub.Main.End
+
+Program.Sub.Unload.Start
+F.Intrinsic.Control.If(V.DataTable.dtFail.Exists,=,True)
+	F.Data.DataTable.Close("dtFail")
+F.Intrinsic.Control.EndIf
+
+F.ODBC.Connection!conx.Close
+F.Intrinsic.Control.End
+
+Program.Sub.Unload.End
+
+Program.Sub.OptVAT.Start
+V.Local.i1.Declare
+V.Local.iEC.Declare
+V.Local.iExempt.Declare
+V.Local.iLen.Declare
+V.Local.iMonth.Declare
+V.Local.iRow.Declare
+V.Local.iTRow.Declare
+V.Local.iUpload.Declare
+V.Local.iVATInclude.Declare
+V.Local.iVATRegistered.Declare
+V.Local.iVATRule.Declare
+V.Local.sCountry.Declare
+V.Local.sDay.Declare
+V.Local.sFileName.Declare
+V.Local.sMessage.Declare
+V.Local.sMonth.Declare
+V.Local.sNIT.Declare
+V.Local.sRow.Declare
+V.Local.sSQL.Declare
+V.Local.sVATDate.Declare
+V.Local.sVATNo.Declare
+
+'Get the excel upload file
+F.Intrinsic.UI.ShowOpenFileDialog("","*.xls|","",V.Local.sFileName)
+
+F.Intrinsic.Control.If(V.Local.sFileName,<>,"***CANCEL***")
+	F.Intrinsic.Control.If(V.DataTable.dtFail.Exists,=,True)
+		F.Data.DataTable.Close("dtFail")
+	F.Intrinsic.Control.EndIf
+	F.Intrinsic.Control.CallSub(setupdatatable)
+
+	F.Automation.MSExcel.CreateAppObject("MSExcel")
+	F.Automation.MSExcel.OpenWorkbook("MSExcel","UPL",V.Local.sFileName)
+	
+	F.Automation.MSExcel.OpenWorksheet("UPL","UPLSheet",1)
+	F.Automation.MSExcel.RowCount("UPLSheet",V.Local.iTRow)
+	
+	V.Local.iUpload.Set(1)
+	F.Intrinsic.UI.InvokeWaitDialog("Uploading Customer VAT","APAC Data Mapper")
+	F.Intrinsic.Control.For(V.Local.iRow,3,V.Local.iTRow,1)
+		F.Intrinsic.Math.Sub(V.Local.iRow,1,V.Local.i1)
+		F.Intrinsic.String.Build("Processing row {0}",V.Local.i1,V.Local.sMessage)
+		F.Intrinsic.UI.ChangeWaitStatus(V.Local.sMessage,V.Local.iRow,1,V.Local.iTRow)
+'		F.Automation.MSExcel.ReadRow("UPLSheet",V.Local.iRow,1,10,V.Local.sRow)
+		F.Automation.MSExcel.ReadRow("UPLSheet",V.Local.iRow,1,11,V.Local.sRow)
+		F.Intrinsic.String.Split(V.Local.sRow,"*!*",V.Local.sRow)
+		
+		'Verify that customer code has inputted in customer master
+		F.Intrinsic.String.Build("select name_customer from v_customer_master where customer = '{0}'",V.Local.sRow(0).Trim,V.Local.sSQL)
+		F.ODBC.Connection!conx.OpenLocalRecordsetRO("rstC",V.Local.sSQL)
+		F.Intrinsic.Control.If(V.ODBC.conx!rstC.EOF,=,False)
+			'Check excel data
+			
+			'VAT rule must be between 6 and 9
+			V.Local.iVATRule.Set(V.Local.sRow(1))
+			F.Intrinsic.Control.If(V.Local.iVATRule,<,6)
+				V.Local.iVATRule.Set(0)
+				F.Data.DataTable.AddRow("dtFail","Customer",V.Local.sRow(0),"Reason","Invalid VAT Rule")
+			F.Intrinsic.Control.Else
+				F.Intrinsic.Control.If(V.Local.iVATRule,>,9)
+					V.Local.iVATRule.Set(0)
+					F.Data.DataTable.AddRow("dtFail","Customer",V.Local.sRow(0),"Reason","Invalid VAT Rule")
+				F.Intrinsic.Control.Else
+					'Set exempt to 2 if VAT rule is 6
+					F.Intrinsic.Control.If(V.Local.iVATRule,=,6)
+						V.Local.iExempt.Set(2)
+					F.Intrinsic.Control.ElseIf(V.Local.iVATRule,=,9)
+						V.Local.iExempt.Set(4)
+					F.Intrinsic.Control.Else
+						V.Local.iExempt.Set(0)
+					F.Intrinsic.Control.EndIf
+				F.Intrinsic.Control.EndIf
+			F.Intrinsic.Control.EndIf
+			
+			V.Local.iUpload.Set(1)
+			F.Intrinsic.Control.If(V.Local.iVATRule,<>,0)
+				'Check VAT included in price
+				V.Local.iVATInclude.Set(V.Local.sRow(2))
+				F.Intrinsic.Control.If(V.Local.iVATInclude,>,1)
+					V.Local.iVATInclude.Set(0)
+				F.Intrinsic.Control.EndIf
+				
+				'Take only first 30 chars for NIT
+				F.Intrinsic.String.Left(V.Local.sRow(3),30,V.Local.sNIT)
+				
+				'Country code
+				F.Intrinsic.String.Build("select country from country_codes where code = '{0}'",V.Local.sRow(4).Trim,V.Local.sSQL)
+				F.ODBC.Connection!conx.OpenLocalRecordsetRO("rst",V.Local.sSQL)
+				F.Intrinsic.Control.If(V.ODBC.conx!rst.EOF,=,False)
+					V.Local.sCountry.Set(V.Local.sRow(4).Trim)
+				F.Intrinsic.Control.Else
+					F.Data.DataTable.AddRow("dtFail","Customer",V.Local.sRow(0),"Reason","Invalid country code")
+					V.Local.iUpload.Set(0)
+				F.Intrinsic.Control.EndIf
+				F.ODBC.conx!rst.Close
+				
+				'VAT Registered
+				V.Local.iVATRegistered.Set(V.Local.sRow(6))
+				F.Intrinsic.Control.If(V.Local.iVATRegistered,>,1)
+					V.Local.iVATRegistered.Set(0)
+				F.Intrinsic.Control.EndIf
+				
+				F.Intrinsic.Control.If(V.Local.iVATRegistered,=,1)
+					F.Intrinsic.String.Left(V.Local.sRow(7),30,V.Local.sVATNo)
+					'Check date format
+					F.Intrinsic.Control.If(V.Local.sRow(8).Trim,=,"")
+						V.Local.sRow(8).Set("1900-01-01")
+					F.Intrinsic.Control.Else
+						F.Intrinsic.String.Split(V.Local.sRow(8),"-",V.Local.sVATDate)
+						F.Intrinsic.Control.If(V.Local.sVATDate.UBound,=,2)
+							F.Intrinsic.String.Len(V.Local.sVATDate(0),V.Local.iLen)
+							F.Intrinsic.Control.If(V.Local.iLen,=,4)
+								'Year length must be 4 chars
+								F.Intrinsic.String.Len(V.Local.sVATDate(1),V.Local.iLen)
+								F.Intrinsic.Control.If(V.Local.iLen,=,2)
+									'Month length must be 2 chars
+									F.Intrinsic.Math.ConvertToLong(V.Local.sVATDate(1),V.Local.iMonth)
+									F.Intrinsic.Control.If(V.Local.iMonth,>,12)
+										F.Data.DataTable.AddRow("dtFail","Customer",V.Local.sRow(0),"Reason","Invalid VAT Registered Date format")
+										V.Local.iUpload.Set(0)
+									F.Intrinsic.Control.Else
+										'Month can't be greater than 12
+										F.Intrinsic.String.Len(V.Local.sVATDate(2),V.Local.iLen)
+										F.Intrinsic.Control.If(V.Local.iLen,=,2)
+											
+										F.Intrinsic.Control.Else
+											F.Data.DataTable.AddRow("dtFail","Customer",V.Local.sRow(0),"Reason","Invalid VAT Registered Date format")
+											V.Local.iUpload.Set(0)
+										F.Intrinsic.Control.EndIf
+									F.Intrinsic.Control.EndIf
+								F.Intrinsic.Control.Else
+									F.Data.DataTable.AddRow("dtFail","Customer",V.Local.sRow(0),"Reason","Invalid VAT Registered Date format")
+									V.Local.iUpload.Set(0)
+								F.Intrinsic.Control.EndIf
+							F.Intrinsic.Control.Else
+								F.Data.DataTable.AddRow("dtFail","Customer",V.Local.sRow(0),"Reason","Invalid VAT Registered Date format")
+								V.Local.iUpload.Set(0)
+							F.Intrinsic.Control.EndIf
+						F.Intrinsic.Control.Else
+							F.Data.DataTable.AddRow("dtFail","Customer",V.Local.sRow(0),"Reason","Invalid VAT Registered Date format")
+							V.Local.iUpload.Set(0)
+						F.Intrinsic.Control.EndIf
+					F.Intrinsic.Control.EndIf
+				F.Intrinsic.Control.Else
+					V.Local.sVATNo.Set("")
+				F.Intrinsic.Control.EndIf
+			F.Intrinsic.Control.Else
+				V.Local.iUpload.Set(0)
+			F.Intrinsic.Control.EndIf
+			
+			'European Community flag
+			V.Local.iEC.Set(V.Local.sRow(9))
+			F.Intrinsic.Control.If(V.Local.iEC,>,1)
+				V.Local.iEC.Set(0)
+			F.Intrinsic.Control.EndIf
+			
+			F.Intrinsic.Control.If(V.Local.iUpload,=,1)
+				F.Intrinsic.String.Build("select cust from customer_vat where cust = '{0}'",V.Local.sRow(0).Trim,V.Local.sSQL)
+				F.ODBC.Connection!conx.OpenLocalRecordsetRO("rstV",V.Local.sSQL)
+				F.Intrinsic.Control.If(V.ODBC.conx!rstV.EOF,=,True)
+					'Upload to CUSTOMER_VAT
+					F.Intrinsic.Control.If(V.Local.iVATRegistered,=,1)
+						F.Intrinsic.String.Build("insert into customer_vat(cust,rule_id,exempt_type,tax_in_prc_flg,nit_no,cntry_cd,regstr_flg,regstr_no,regstr_dte,ec_flg) values('{0}',{1},{2},{3},'{4}','{5}',{6},'{7}','{8}',{9});",V.Local.sRow(0).Trim,V.Local.iVATRule,V.Local.iExempt,V.Local.iVATInclude,V.Local.sNIT.Trim,V.Local.sCountry.Trim,V.Local.iVATRegistered,V.Local.sVATNo.Trim,V.Local.sRow(8).Trim,V.Local.iEC,V.Local.sSQL)
+					F.Intrinsic.Control.Else
+						F.Intrinsic.String.Build("insert into customer_vat(cust,rule_id,exempt_type,tax_in_prc_flg,nit_no,cntry_cd,regstr_flg,regstr_no,ec_flg) values('{0}',{1},{2},{3},'{4}','{5}',{6},'{7}',{8});",V.Local.sRow(0).Trim,V.Local.iVATRule,V.Local.iExempt,V.Local.iVATInclude,V.Local.sNIT.Trim,V.Local.sCountry.Trim,V.Local.iVATRegistered,"",V.Local.iEC,V.Local.sSQL)
+					F.Intrinsic.Control.EndIf
+					F.ODBC.Connection!conx.Execute(V.Local.sSQL)
+					'Update CUSTOMER_TAX
+					F.Intrinsic.String.Build("update customer_tax set tax_auth_ctr = 1 where cust = '{0}'",V.Local.sRow(0).Trim,V.Local.sSQL)
+					F.ODBC.Connection!conx.Execute(V.Local.sSQL)
+					'Upload to CUSTOMER_TAX_AUTH
+					'Check tax code
+'					F.Intrinsic.String.Build("select descr from v_ar_tax_tables where zone = '{0}' and auth = '{1}'",V.Local.sCountry.Trim,V.Local.sRow(5).Trim,V.Local.sSQL)
+					F.Intrinsic.String.Build("select descr from v_ar_tax_tables where zone = '{0}' and auth = '{1}'",V.Local.sRow(10).Trim,V.Local.sRow(5).Trim,V.Local.sSQL)
+					F.ODBC.Connection!conx.OpenLocalRecordsetRO("rst",V.Local.sSQL)
+					F.Intrinsic.Control.If(V.ODBC.conx!rst.EOF,=,False)
+						F.ODBC.conx!rst.Close
+						F.Intrinsic.String.Build("select tax_zone, tax_auth from customer_tax_auth where cust = '{0}' and tax_seq = 1",V.Local.sRow(0).Trim,V.Local.sSQL)
+						F.ODBC.Connection!conx.OpenLocalRecordsetRW("rst",V.Local.sSQL)
+						F.Intrinsic.Control.If(V.ODBC.conx!rst.EOF,=,True)
+'							F.Intrinsic.String.Build("insert into customer_tax_auth(cust,tax_seq,tax_zone,tax_auth) values('{0}',1,'{1}','{2}');",V.Local.sRow(0).Trim,V.Local.sCountry.Trim,V.Local.sRow(5).Trim,V.Local.sSQL)
+							F.Intrinsic.String.Build("insert into customer_tax_auth(cust,tax_seq,tax_zone,tax_auth) values('{0}',1,'{1}','{2}');",V.Local.sRow(0).Trim,V.Local.sRow(10).Trim,V.Local.sRow(5).Trim,V.Local.sSQL)
+							F.ODBC.Connection!conx.Execute(V.Local.sSQL)
+						F.Intrinsic.Control.Else
+							F.Intrinsic.Control.If(V.Screen.F_Upload!chk1.Value,=,1)
+'								F.ODBC.conx!rst.Set!tax_zone(V.Local.sCountry.Trim)
+								F.ODBC.conx!rst.Set!tax_zone(V.Local.sRow(10).Trim)
+								F.ODBC.conx!rst.Set!tax_auth(V.Local.sRow(5).Trim)
+								F.ODBC.conx!rst.Update
+							F.Intrinsic.Control.EndIf
+						F.Intrinsic.Control.EndIf
+					F.Intrinsic.Control.Else
+						F.Data.DataTable.AddRow("dtFail","Customer",V.Local.sRow(0),"Reason","Tax code not uploaded, invalid tax code")
+					F.Intrinsic.Control.EndIf
+					F.ODBC.conx!rst.Close
+				F.Intrinsic.Control.Else
+					F.Intrinsic.Control.If(V.Screen.F_Upload!chk1.Value,=,1)
+						'Only if update record is selected
+						F.Intrinsic.Control.If(V.Local.iVATRegistered,=,1)
+							F.Intrinsic.String.Build("update customer_vat set rule_id = {1}, exempt_type = {2}, tax_in_prc_flg = {3}, nit_no = '{4}', cntry_cd = '{5}', regstr_flg = {6}, regstr_no = '{7}', regstr_dte = '{8}', ec_flg = {9} where cust = '{0}'",V.Local.sRow(0).Trim,V.Local.iVATRule,V.Local.iExempt,V.Local.iVATInclude,V.Local.sNIT.Trim,V.Local.sCountry.Trim,V.Local.iVATRegistered,V.Local.sVATNo.Trim,V.Local.sRow(8).Trim,V.Local.iEC,V.Local.sSQL)
+						F.Intrinsic.Control.Else
+							F.Intrinsic.String.Build("update customer_vat set rule_id = {1}, exempt_type = {2}, tax_in_prc_flg = {3}, nit_no = '{4}', cntry_cd = '{5}', regstr_flg = {6}, regstr_no = '{7}', regstr_dte = {8}, ec_flg = {9} where cust = '{0}'",V.Local.sRow(0).Trim,V.Local.iVATRule,V.Local.iExempt,V.Local.iVATInclude,V.Local.sNIT.Trim,V.Local.sCountry.Trim,V.Local.iVATRegistered,V.Local.sVATNo.Trim,"null",V.Local.iEC,V.Local.sSQL)
+						F.Intrinsic.Control.EndIf
+						F.ODBC.Connection!conx.Execute(V.Local.sSQL)
+						'Update CUSTOMER_TAX
+						F.Intrinsic.String.Build("update customer_tax set tax_auth_ctr = 1 where cust = '{0}'",V.Local.sRow(0).Trim,V.Local.sSQL)
+						F.ODBC.Connection!conx.Execute(V.Local.sSQL)
+						'Upload to CUSTOMER_TAX_AUTH
+						'Check tax code
+'						F.Intrinsic.String.Build("select descr from v_ar_tax_tables where zone = '{0}' and auth = '{1}'",V.Local.sCountry.Trim,V.Local.sRow(5).Trim,V.Local.sSQL)
+						F.Intrinsic.String.Build("select descr from v_ar_tax_tables where zone = '{0}' and auth = '{1}'",V.Local.sRow(10).Trim,V.Local.sRow(5).Trim,V.Local.sSQL)
+						F.ODBC.Connection!conx.OpenLocalRecordsetRO("rst",V.Local.sSQL)
+						F.Intrinsic.Control.If(V.ODBC.conx!rst.EOF,=,False)
+							F.ODBC.conx!rst.Close
+							F.Intrinsic.String.Build("select tax_zone, tax_auth from customer_tax_auth where cust = '{0}' and tax_seq = 1",V.Local.sRow(0).Trim,V.Local.sSQL)
+							F.ODBC.Connection!conx.OpenLocalRecordsetRW("rst",V.Local.sSQL)
+							F.Intrinsic.Control.If(V.ODBC.conx!rst.EOF,=,True)
+'								F.Intrinsic.String.Build("insert into customer_tax_auth(cust,tax_seq,tax_zone,tax_auth) values('{0}',1,'{1}','{2}');",V.Local.sRow(0).Trim,V.Local.sCountry.Trim,V.Local.sRow(5).Trim,V.Local.sSQL)
+								F.Intrinsic.String.Build("insert into customer_tax_auth(cust,tax_seq,tax_zone,tax_auth) values('{0}',1,'{1}','{2}');",V.Local.sRow(0).Trim,V.Local.sRow(10).Trim,V.Local.sRow(5).Trim,V.Local.sSQL)
+								F.ODBC.Connection!conx.Execute(V.Local.sSQL)
+							F.Intrinsic.Control.Else
+'								F.ODBC.conx!rst.Set!tax_zone(V.Local.sCountry.Trim)
+								F.ODBC.conx!rst.Set!tax_zone(V.Local.sRow(10).Trim)
+								F.ODBC.conx!rst.Set!tax_auth(V.Local.sRow(5).Trim)
+								F.ODBC.conx!rst.Update
+							F.Intrinsic.Control.EndIf
+						F.Intrinsic.Control.Else
+							F.Data.DataTable.AddRow("dtFail","Customer",V.Local.sRow(0),"Reason","Tax code not uploaded, invalid tax code")
+						F.Intrinsic.Control.EndIf
+						F.ODBC.conx!rst.Close
+					F.Intrinsic.Control.EndIf
+				F.Intrinsic.Control.EndIf
+				F.ODBC.conx!rstV.Close
+			F.Intrinsic.Control.EndIf
+		F.Intrinsic.Control.Else
+			F.Data.DataTable.AddRow("dtFail","Customer",V.Local.sRow(0),"Reason","Customer code not found in customer master")
+		F.Intrinsic.Control.EndIf
+		F.ODBC.conx!rstC.Close
+	F.Intrinsic.Control.Next(V.Local.iRow)
+	F.Intrinsic.UI.CloseWaitDialog
+	
+	F.Automation.MSExcel.DestroyAllObjects("MSExcel","UPL","UPLSheet")
+	
+	F.Intrinsic.Control.If(V.DataTable.dtFail.RowCount,>,0)
+		Gui.F_Upload..Visible(False)
+		Gui.F_Fail.GsGridControl1.AddGridviewFromDatatable("gvFail","dtFail")
+		Gui.F_Fail.GsGridControl1.MainView("gvFail")
+		Gui.F_Fail.GsGridControl1.SetColumnProperty("gvFail","Customer","HeaderHAlignment","Center")
+		Gui.F_Fail.GsGridControl1.SetColumnProperty("gvFail","Reason","HeaderHAlignment","Center")
+		Gui.F_Fail.GsGridControl1.SetColumnProperty("gvFail","Customer","CellHAlignment","Center")
+		Gui.F_Fail.GsGridControl1.SetColumnProperty("gvFail","Customer","MinWidth","100")
+		Gui.F_Fail.GsGridControl1.SetColumnProperty("gvFail","Reason","MinWidth","250")
+		Gui.F_Fail..Show
+	F.Intrinsic.Control.Else
+		F.Intrinsic.Control.CallSub(unload)
+	F.Intrinsic.Control.EndIf
+F.Intrinsic.Control.Else
+	Gui.F_Upload.optVAT.Value(0)
+F.Intrinsic.Control.EndIf
+Program.Sub.OptVAT.End
+
+Program.Sub.SetupDatatable.Start
+F.Data.DataTable.Create("dtFail",True)
+F.Data.DataTable.AddColumn("dtFail","Customer","String")
+F.Data.DataTable.AddColumn("dtFail","Reason","String")
+Program.Sub.SetupDatatable.End
+
+Program.Sub.OptBACS.Start
+V.Local.bNumeric.Declare
+V.Local.i1.Declare
+V.Local.iEmail.Declare
+V.Local.iRow.Declare
+V.Local.iTRow.Declare
+V.Local.iUpload.Declare
+V.Local.sBankAccount.Declare
+V.Local.sBankName.Declare
+V.Local.sBankSort.Declare
+V.Local.sDate.Declare
+V.Local.sFileName.Declare
+V.Local.sIBAN.Declare
+V.Local.sMessage.Declare
+V.Local.sRow.Declare
+V.Local.sSQL.Declare
+V.Local.sTime.Declare
+V.Local.BA.Declare(ByteArray)
+V.Local.BI.Declare(ByteArray)
+V.Local.sBI.Declare
+V.Local.sBA.Declare
+
+'Get the excel upload file
+F.Intrinsic.UI.ShowOpenFileDialog("","*.xls|","",V.Local.sFileName)
+
+F.Intrinsic.Control.If(V.Local.sFileName,<>,"***CANCEL***")
+	F.Intrinsic.Control.If(V.DataTable.dtFail.Exists,=,True)
+		F.Data.DataTable.Close("dtFail")
+	F.Intrinsic.Control.EndIf
+	F.Intrinsic.Control.CallSub(setupdatatable)
+	
+	F.Automation.MSExcel.CreateAppObject("MSExcel")
+	F.Automation.MSExcel.OpenWorkbook("MSExcel","UPL",V.Local.sFileName)
+	
+	F.Automation.MSExcel.OpenWorksheet("UPL","UPLSheet",1)
+	F.Automation.MSExcel.RowCount("UPLSheet",V.Local.iTRow)
+	
+	V.Local.iUpload.Set(1)
+	F.Intrinsic.UI.InvokeWaitDialog("Uploading Vendor BACS","APAC Data Mapper")
+	F.Intrinsic.Control.For(V.Local.iRow,3,V.Local.iTRow,1)
+		F.Intrinsic.Math.Sub(V.Local.iRow,1,V.Local.i1)
+		F.Intrinsic.String.Build("Processing row {0}",V.Local.i1,V.Local.sMessage)
+		F.Intrinsic.UI.ChangeWaitStatus(V.Local.sMessage,V.Local.iRow,1,V.Local.iTRow)
+		F.Automation.MSExcel.ReadRow("UPLSheet",V.Local.iRow,1,10,V.Local.sRow)
+		F.Intrinsic.String.Split(V.Local.sRow,"*!*",V.Local.sRow)
+	
+		'Verify that customer code has inputted in customer master
+		F.Intrinsic.String.Build("select name_vendor from v_vendor_master where vendor = '{0}'",V.Local.sRow(0).Trim,V.Local.sSQL)
+		F.ODBC.Connection!conx.OpenLocalRecordsetRO("rstV",V.Local.sSQL)
+		F.Intrinsic.Control.If(V.ODBC.conx!rstV.EOF,=,False)
+			'Check excel data
+			
+			'Bank sort code must be numeric and 6 digits
+			F.Intrinsic.String.Left(V.Local.sRow(1),6,V.Local.sBankSort)
+			F.Intrinsic.Math.IsNumeric(V.Local.sBankSort,V.Local.bNumeric)
+			F.Intrinsic.Control.If(V.Local.bNumeric,=,True)
+				'Bank acount number must be numeric and 8 digits
+				F.Intrinsic.String.Left(V.Local.sRow(2),8,V.Local.sBankAccount)
+				F.Intrinsic.Math.IsNumeric(V.Local.sBankAccount,V.Local.bNumeric)
+				F.Intrinsic.Control.If(V.Local.bNumeric,=,True)
+					V.Local.iUpload.Set(1)
+					F.Intrinsic.String.Left(V.Local.sRow(3),50,V.Local.sBankName)
+					F.Intrinsic.String.Left(V.Local.sRow(4),35,V.Local.sIBAN)
+					V.Local.iEmail.Set(V.Local.sRow(5))
+					F.Intrinsic.Control.If(V.Local.iEmail,>,1)
+						V.Local.iEmail.Set(0)
+					F.Intrinsic.Control.EndIf
+				F.Intrinsic.Control.Else
+					F.Data.DataTable.AddRow("dtFail","Customer",V.Local.sRow(0),"Reason","Bank account number is not numeric")
+					V.Local.iUpload.Set(0)
+				F.Intrinsic.Control.EndIf
+			F.Intrinsic.Control.Else
+				F.Data.DataTable.AddRow("dtFail","Customer",V.Local.sRow(0),"Reason","Bank sort code is not numeric")
+				V.Local.iUpload.Set(0)
+			F.Intrinsic.Control.EndIf
+			
+			F.Intrinsic.Control.If(V.Local.iUpload,=,1)
+				F.Intrinsic.String.Format(V.Ambient.Date,"YYYY-MM-DD",V.Local.sDate)
+				F.Intrinsic.String.Format(V.Ambient.Time,"HH:NN:SS",V.Local.sTime)
+				F.Intrinsic.Control.If(V.Global.sGSSVersion,<,2019)
+					F.Intrinsic.String.Build("select DEST_BANK_SORT_CD,DEST_BANK_ACCT,DEST_BANK_NAME,BANK_IBAN_NBR,EMAIL_FLAG,LAST_CHG_DATE,LAST_CHG_TIMESTAMP,LAST_CHG_PGM,LAST_CHG_BY from VEND_INTL_BACS where VENDOR_ID = '{0}'",V.Local.sRow(0).Trim,V.Local.sSQL)
+					F.ODBC.Connection!conx.OpenLocalRecordsetRW("rstB",V.Local.sSQL)
+					F.Intrinsic.Control.If(V.ODBC.conx!rstB.EOF,=,True)
+						F.Intrinsic.String.Build("insert into VEND_INTL_BACS(VENDOR_ID,ACCOUNT_TYPE,DEST_BANK_SORT_CD,DEST_BANK_ACCT,DEST_BANK_NAME,BANK_IBAN_NBR,EMAIL_FLAG,APPROVAL_FLAG,LAST_CHG_DATE,LAST_CHG_TIMESTAMP,LAST_CHG_PGM,LAST_CHG_BY) values('{0}',1,{1},{2},'{3}','{4}',{5},0,'{6}','{7}','GAB','{8}');",V.Local.sRow(0).Trim,V.Local.sBankSort,V.Local.sBankAccount,V.Local.sBankName,V.Local.sIBAN,V.Local.iEmail,V.Local.sDate,V.Local.sTime,V.Caller.User,V.Local.sSQL)
+						F.ODBC.Connection!conx.Execute(V.Local.sSQL)
+					F.Intrinsic.Control.Else
+						F.Intrinsic.Control.If(V.Screen.F_Upload!chk1.Value,=,1)
+							'Only if update record is selected
+							F.ODBC.conx!rstB.Set!DEST_BANK_SORT_CD(V.Local.sBankSort)
+							F.ODBC.conx!rstB.Set!DEST_BANK_ACCT(V.Local.sBankAccount)
+							F.ODBC.conx!rstB.Set!DEST_BANK_NAME(V.Local.sBankName)
+							F.ODBC.conx!rstB.Set!BANK_IBAN_NBR(V.Local.sIBAN)
+							F.ODBC.conx!rstB.Set!EMAIL_FLAG(V.Local.iEmail)
+							F.ODBC.conx!rstB.Set!LAST_CHG_DATE(V.Local.sDate)
+							F.ODBC.conx!rstB.Set!LAST_CHG_TIMESTAMP(V.Local.sTime)
+							F.ODBC.conx!rstB.Set!LAST_CHG_PGM("GAB")
+							F.ODBC.conx!rstB.Set!LAST_CHG_BY(V.Caller.User)
+							F.ODBC.conx!rstB.Update
+						F.Intrinsic.Control.EndIf
+					F.Intrinsic.Control.EndIf
+					F.ODBC.conx!rstB.Close				
+				F.Intrinsic.Control.Else
+					F.Intrinsic.String.Build("select DEST_BANK_SORT_CD,BANK_ACCOUNT_ENC,DEST_BANK_NAME,BANK_IBAN_NBR_ENC,EMAIL_FLAG,LAST_CHG_DATE,LAST_CHG_TIMESTAMP,LAST_CHG_PGM,LAST_CHG_BY from VEND_INTL_BACS where VENDOR_ID = '{0}'",V.Local.sRow(0).Trim,V.Local.sSQL)
+					F.ODBC.Connection!conx.OpenLocalRecordsetRW("rstB",V.Local.sSQL)
+					F.Intrinsic.String.RPad(V.Local.sBankAccount," ",40,V.Local.sBankAccount)
+					F.Intrinsic.String.RPad(V.Local.sIBAN," ",40,V.Local.sIBAN)					
+					F.Global.Encryption.Encrypt(V.Local.sBankAccount,V.Local.BA)
+					F.Global.Encryption.Encrypt(V.Local.sIBAN,V.Local.BI)
+					F.Intrinsic.String.ConvertBA2String(V.Local.BA,V.Local.sBA)
+					F.Intrinsic.String.ConvertBA2String(V.Local.BI,V.Local.sBI)
+					F.Intrinsic.Control.If(V.ODBC.conx!rstB.EOF,=,True)
+						F.Intrinsic.String.Build("insert into VEND_INTL_BACS(VENDOR_ID,ACCOUNT_TYPE,DEST_BANK_SORT_CD,BANK_ACCOUNT_ENC,DEST_BANK_NAME,BANK_IBAN_NBR_ENC,EMAIL_FLAG,APPROVAL_FLAG,LAST_CHG_DATE,LAST_CHG_TIMESTAMP,LAST_CHG_PGM,LAST_CHG_BY) values('{0}',1,{1},'{2}','{3}','{4}',{5},0,'{6}','{7}','GAB','{8}');",V.Local.sRow(0).Trim,V.Local.sBankSort,V.Local.sBA,V.Local.sBankName,V.Local.sBI,V.Local.iEmail,V.Local.sDate,V.Local.sTime,V.Caller.User,V.Local.sSQL)
+						F.ODBC.Connection!conx.Execute(V.Local.sSQL)
+					F.Intrinsic.Control.Else
+						F.Intrinsic.Control.If(V.Screen.F_Upload!chk1.Value,=,1)
+							'Only if update record is selected
+							F.ODBC.conx!rstB.Set!DEST_BANK_SORT_CD(V.Local.sBankSort)
+							F.ODBC.conx!rstB.Set!BANK_ACCOUNT_ENC(V.local.sBA)
+							F.ODBC.conx!rstB.Set!DEST_BANK_NAME(V.Local.sBankName)
+							F.ODBC.conx!rstB.Set!BANK_IBAN_NBR_ENC(V.Local.sBI)
+							F.ODBC.conx!rstB.Set!EMAIL_FLAG(V.Local.iEmail)
+							F.ODBC.conx!rstB.Set!LAST_CHG_DATE(V.Local.sDate)
+							F.ODBC.conx!rstB.Set!LAST_CHG_TIMESTAMP(V.Local.sTime)
+							F.ODBC.conx!rstB.Set!LAST_CHG_PGM("GAB")
+							F.ODBC.conx!rstB.Set!LAST_CHG_BY(V.Caller.User)
+							F.ODBC.conx!rstB.Update
+						F.Intrinsic.Control.EndIf
+					F.Intrinsic.Control.EndIf
+					F.ODBC.conx!rstB.Close									
+				F.Intrinsic.Control.EndIf
+			F.Intrinsic.Control.EndIf
+		F.Intrinsic.Control.Else
+			F.Data.DataTable.AddRow("dtFail","Customer",V.Local.sRow(0),"Reason","Vendor code not found in vendor master")
+		F.Intrinsic.Control.EndIf
+		F.ODBC.conx!rstV.Close
+	F.Intrinsic.Control.Next(V.Local.iRow)
+	F.Intrinsic.UI.CloseWaitDialog
+	
+	F.Automation.MSExcel.DestroyAllObjects("MSExcel","UPL","UPLSheet")
+	
+	F.Intrinsic.Control.If(V.DataTable.dtFail.RowCount,>,0)
+		Gui.F_Upload..Visible(False)
+		Gui.F_Fail.GsGridControl1.AddGridviewFromDatatable("gvFail","dtFail")
+		Gui.F_Fail.GsGridControl1.MainView("gvFail")
+		Gui.F_Fail.GsGridControl1.SetColumnProperty("gvFail","Customer","HeaderHAlignment","Center")
+		Gui.F_Fail.GsGridControl1.SetColumnProperty("gvFail","Reason","HeaderHAlignment","Center")
+		Gui.F_Fail.GsGridControl1.SetColumnProperty("gvFail","Customer","CellHAlignment","Center")
+		Gui.F_Fail.GsGridControl1.SetColumnProperty("gvFail","Customer","MinWidth","100")
+		Gui.F_Fail.GsGridControl1.SetColumnProperty("gvFail","Reason","MinWidth","250")
+		Gui.F_Fail.GsGridControl1.SetColumnProperty("gvFail","Customer","Caption","Vendor")
+		Gui.F_Fail..Show
+	F.Intrinsic.Control.Else
+		F.Intrinsic.Control.CallSub(unload)
+	F.Intrinsic.Control.EndIf
+F.Intrinsic.Control.Else
+	Gui.F_Upload.optBACS.Value(0)
+F.Intrinsic.Control.EndIf
+Program.Sub.OptBACS.End
+
+Program.Sub.Comments.Start
+${$0$}$Customer VAT and BACS Info Upload$}$MHERTANTO$}$20/2/2018 3:31:34 PM$}$False
+${$3$}$0$}$$}$0$}$-1$}$$}$12:00:00 AM$}$Upload product line from Excel file with the following columns in order:
+${$5$}$2.0.0.0$}$2
+${$6$}$tdjohan$}$20230622210433869$}$8rAQhOSvlohpQhMDm1j544LwmwXnRbkh7hjCKa9e72/MgIDogKD7m0A/cm59x2HPfRkrqgYqk9c=
+Program.Sub.Comments.End
